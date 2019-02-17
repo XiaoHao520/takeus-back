@@ -1,7 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
   <component name="ChangeListManager">
-    <list default="true" id="2eb89185-c87a-4ebc-86e9-0ef63cc412c2" name="Default Changelist" comment="" />
+    <list default="true" id="2eb89185-c87a-4ebc-86e9-0ef63cc412c2" name="Default Changelist" comment="">
+      <change beforePath="$PROJECT_DIR$/core/modules/api/models/PhotographerListForm.php" beforeDir="false" afterPath="$PROJECT_DIR$/core/modules/api/models/PhotographerListForm.php" afterDir="false" />
+    </list>
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -97,13 +99,36 @@
         </counts>
       </usages-collector>
     </session>
+    <session id="-778144068">
+      <usages-collector id="statistics.lifecycle.project">
+        <counts>
+          <entry key="project.open.time.3" value="1" />
+          <entry key="project.opened" value="1" />
+        </counts>
+      </usages-collector>
+      <usages-collector id="statistics.vcs.git.usages">
+        <counts>
+          <entry key="git.branch.checkout.remote" value="1" />
+        </counts>
+      </usages-collector>
+      <usages-collector id="statistics.file.extensions.edit">
+        <counts>
+          <entry key="php" value="5" />
+        </counts>
+      </usages-collector>
+      <usages-collector id="statistics.file.types.edit">
+        <counts>
+          <entry key="PHP" value="5" />
+        </counts>
+      </usages-collector>
+    </session>
   </component>
   <component name="FileEditorManager">
     <leaf SIDE_TABS_SIZE_LIMIT_KEY="300">
       <file pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/core/modules/api/controllers/PhotographerController.php">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="1474">
+            <state relative-caret-position="4085">
               <caret line="268" column="21" selection-start-line="268" selection-start-column="12" selection-end-line="268" selection-end-column="21" />
             </state>
           </provider>
@@ -112,11 +137,8 @@
       <file pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/core/modules/mch/views/photographer/photographers.php">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="339">
+            <state relative-caret-position="4465">
               <caret line="235" column="102" selection-start-line="235" selection-start-column="102" selection-end-line="235" selection-end-column="102" />
-              <folding>
-                <element signature="n#style#0;n#img#0;n#td#8;n#tr#0;n#tbody#0;n#table#0;n#div#1;n#div#0;n#!!top" expanded="true" />
-              </folding>
             </state>
           </provider>
         </entry>
@@ -124,8 +146,8 @@
       <file pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/core/modules/api/controllers/RequirementController.php">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="513">
-              <caret line="121" column="49" lean-forward="true" selection-start-line="121" selection-start-column="49" selection-end-line="121" selection-end-column="49" />
+            <state relative-caret-position="1197">
+              <caret line="121" column="49" selection-start-line="121" selection-start-column="49" selection-end-line="121" selection-end-column="49" />
             </state>
           </provider>
         </entry>
@@ -133,8 +155,8 @@
       <file pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/core/modules/api/models/PhotographerListForm.php">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="377">
-              <caret line="65" column="29" selection-start-line="65" selection-start-column="29" selection-end-line="65" selection-end-column="29" />
+            <state relative-caret-position="130">
+              <caret line="52" column="8" selection-start-line="52" selection-start-column="8" selection-end-line="52" selection-end-column="8" />
             </state>
           </provider>
         </entry>
@@ -142,8 +164,8 @@
       <file pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/core/models/UserCenterForm.php">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="481">
-              <caret line="190" column="35" lean-forward="true" selection-start-line="190" selection-start-column="35" selection-end-line="190" selection-end-column="35" />
+            <state relative-caret-position="3515">
+              <caret line="190" column="35" selection-start-line="190" selection-start-column="35" selection-end-line="190" selection-end-column="35" />
             </state>
           </provider>
         </entry>
@@ -231,6 +253,14 @@
     <replaceStrings>
       <replace>photographer-</replace>
     </replaceStrings>
+  </component>
+  <component name="Git.Settings">
+    <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
+    <option name="RECENT_BRANCH_BY_REPOSITORY">
+      <map>
+        <entry key="$PROJECT_DIR$" value="master" />
+      </map>
+    </option>
   </component>
   <component name="IdeDocumentHistory">
     <option name="CHANGED_PATHS">
@@ -330,77 +360,13 @@
         <subPane>
           <expand>
             <path>
-              <item name="sy.sinbel.cn" type="b2602c69:ProjectViewProjectNode" />
-              <item name="sy.sinbel.cn" type="462c0819:PsiDirectoryNode" />
+              <item name="takeus-back" type="b2602c69:ProjectViewProjectNode" />
+              <item name="takeus-back" type="462c0819:PsiDirectoryNode" />
             </path>
             <path>
-              <item name="sy.sinbel.cn" type="b2602c69:ProjectViewProjectNode" />
-              <item name="sy.sinbel.cn" type="462c0819:PsiDirectoryNode" />
+              <item name="takeus-back" type="b2602c69:ProjectViewProjectNode" />
+              <item name="takeus-back" type="462c0819:PsiDirectoryNode" />
               <item name="core" type="462c0819:PsiDirectoryNode" />
-            </path>
-            <path>
-              <item name="sy.sinbel.cn" type="b2602c69:ProjectViewProjectNode" />
-              <item name="sy.sinbel.cn" type="462c0819:PsiDirectoryNode" />
-              <item name="core" type="462c0819:PsiDirectoryNode" />
-              <item name="modules" type="462c0819:PsiDirectoryNode" />
-            </path>
-            <path>
-              <item name="sy.sinbel.cn" type="b2602c69:ProjectViewProjectNode" />
-              <item name="sy.sinbel.cn" type="462c0819:PsiDirectoryNode" />
-              <item name="core" type="462c0819:PsiDirectoryNode" />
-              <item name="modules" type="462c0819:PsiDirectoryNode" />
-              <item name="api" type="462c0819:PsiDirectoryNode" />
-            </path>
-            <path>
-              <item name="sy.sinbel.cn" type="b2602c69:ProjectViewProjectNode" />
-              <item name="sy.sinbel.cn" type="462c0819:PsiDirectoryNode" />
-              <item name="core" type="462c0819:PsiDirectoryNode" />
-              <item name="modules" type="462c0819:PsiDirectoryNode" />
-              <item name="api" type="462c0819:PsiDirectoryNode" />
-              <item name="controllers" type="462c0819:PsiDirectoryNode" />
-            </path>
-            <path>
-              <item name="sy.sinbel.cn" type="b2602c69:ProjectViewProjectNode" />
-              <item name="sy.sinbel.cn" type="462c0819:PsiDirectoryNode" />
-              <item name="core" type="462c0819:PsiDirectoryNode" />
-              <item name="modules" type="462c0819:PsiDirectoryNode" />
-              <item name="api" type="462c0819:PsiDirectoryNode" />
-              <item name="views" type="462c0819:PsiDirectoryNode" />
-            </path>
-            <path>
-              <item name="sy.sinbel.cn" type="b2602c69:ProjectViewProjectNode" />
-              <item name="sy.sinbel.cn" type="462c0819:PsiDirectoryNode" />
-              <item name="core" type="462c0819:PsiDirectoryNode" />
-              <item name="modules" type="462c0819:PsiDirectoryNode" />
-              <item name="mch" type="462c0819:PsiDirectoryNode" />
-            </path>
-            <path>
-              <item name="sy.sinbel.cn" type="b2602c69:ProjectViewProjectNode" />
-              <item name="sy.sinbel.cn" type="462c0819:PsiDirectoryNode" />
-              <item name="core" type="462c0819:PsiDirectoryNode" />
-              <item name="modules" type="462c0819:PsiDirectoryNode" />
-              <item name="mch" type="462c0819:PsiDirectoryNode" />
-              <item name="views" type="462c0819:PsiDirectoryNode" />
-            </path>
-            <path>
-              <item name="sy.sinbel.cn" type="b2602c69:ProjectViewProjectNode" />
-              <item name="sy.sinbel.cn" type="462c0819:PsiDirectoryNode" />
-              <item name="core" type="462c0819:PsiDirectoryNode" />
-              <item name="modules" type="462c0819:PsiDirectoryNode" />
-              <item name="mch" type="462c0819:PsiDirectoryNode" />
-              <item name="views" type="462c0819:PsiDirectoryNode" />
-              <item name="photographer" type="462c0819:PsiDirectoryNode" />
-            </path>
-            <path>
-              <item name="sy.sinbel.cn" type="b2602c69:ProjectViewProjectNode" />
-              <item name="sy.sinbel.cn" type="462c0819:PsiDirectoryNode" />
-              <item name="core" type="462c0819:PsiDirectoryNode" />
-              <item name="web" type="462c0819:PsiDirectoryNode" />
-            </path>
-            <path>
-              <item name="sy.sinbel.cn" type="b2602c69:ProjectViewProjectNode" />
-              <item name="sy.sinbel.cn" type="462c0819:PsiDirectoryNode" />
-              <item name="vendor" type="462c0819:PsiDirectoryNode" />
             </path>
           </expand>
           <select />
@@ -475,17 +441,18 @@
       <workItem from="1549097941952" duration="3910000" />
       <workItem from="1550030203212" duration="16000" />
       <workItem from="1550039980645" duration="974000" />
+      <workItem from="1550373222369" duration="319000" />
     </task>
     <servers />
   </component>
   <component name="TimeTrackingManager">
-    <option name="totallyTimeSpent" value="211955000" />
+    <option name="totallyTimeSpent" value="212274000" />
   </component>
   <component name="ToolWindowManager">
-    <frame x="-7" y="-7" width="2062" height="1136" extended-state="6" />
+    <frame x="-8" y="-8" width="1936" height="1066" extended-state="6" />
     <editor active="true" />
     <layout>
-      <window_info active="true" content_ui="combo" id="Project" order="0" visible="true" weight="0.19061877" />
+      <window_info content_ui="combo" id="Project" order="0" visible="true" weight="0.1924307" />
       <window_info id="Structure" order="1" side_tool="true" weight="0.25" />
       <window_info id="Favorites" order="2" side_tool="true" />
       <window_info anchor="bottom" id="Message" order="0" />
@@ -497,16 +464,16 @@
       <window_info anchor="bottom" id="TODO" order="6" />
       <window_info anchor="bottom" id="Database Console" order="7" weight="0.32968128" />
       <window_info anchor="bottom" id="Docker" order="8" show_stripe_button="false" />
-      <window_info anchor="bottom" id="Version Control" order="9" show_stripe_button="false" />
-      <window_info anchor="bottom" id="File Transfer" order="10" sideWeight="0.499002" visible="true" weight="0.27689242" />
+      <window_info anchor="bottom" id="Version Control" order="9" />
+      <window_info active="true" anchor="bottom" id="File Transfer" order="10" sideWeight="0.5634328" visible="true" weight="0.27604726" />
       <window_info anchor="bottom" id="Database Changes" order="11" />
-      <window_info anchor="bottom" id="Terminal" order="12" />
-      <window_info anchor="bottom" id="Event Log" order="13" sideWeight="0.500998" side_tool="true" visible="true" weight="0.27689242" />
+      <window_info anchor="bottom" id="Terminal" order="12" sideWeight="0.49946696" weight="0.32975295" />
+      <window_info anchor="bottom" id="Event Log" order="13" sideWeight="0.43656716" side_tool="true" visible="true" weight="0.27604726" />
       <window_info anchor="right" id="Commander" internal_type="SLIDING" order="0" type="SLIDING" weight="0.4" />
       <window_info anchor="right" id="Ant Build" order="1" weight="0.25" />
       <window_info anchor="right" content_ui="combo" id="Hierarchy" order="2" weight="0.25" />
       <window_info anchor="right" id="Database" order="3" weight="0.08383234" />
-      <window_info anchor="right" id="Remote Host" order="4" visible="true" weight="0.08732535" />
+      <window_info anchor="right" id="Remote Host" order="4" visible="true" weight="0.086886995" />
     </layout>
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -785,6 +752,34 @@
         </state>
       </provider>
     </entry>
+    <entry file="file://$PROJECT_DIR$/core/modules/api/controllers/PhotographerController.php">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="4085">
+          <caret line="268" column="21" selection-start-line="268" selection-start-column="12" selection-end-line="268" selection-end-column="21" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/core/modules/mch/views/photographer/photographers.php">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="4465">
+          <caret line="235" column="102" selection-start-line="235" selection-start-column="102" selection-end-line="235" selection-end-column="102" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/core/modules/api/controllers/RequirementController.php">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="1197">
+          <caret line="121" column="49" selection-start-line="121" selection-start-column="49" selection-end-line="121" selection-end-column="49" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/core/models/UserCenterForm.php">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="3515">
+          <caret line="190" column="35" selection-start-line="190" selection-start-column="35" selection-end-line="190" selection-end-column="35" />
+        </state>
+      </provider>
+    </entry>
     <entry file="file://$PROJECT_DIR$/core/modules/mch/controllers/UserController.php">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="6688">
@@ -820,41 +815,10 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/core/models/UserCenterForm.php">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="481">
-          <caret line="190" column="35" lean-forward="true" selection-start-line="190" selection-start-column="35" selection-end-line="190" selection-end-column="35" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/core/modules/mch/views/photographer/photographers.php">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="339">
-          <caret line="235" column="102" selection-start-line="235" selection-start-column="102" selection-end-line="235" selection-end-column="102" />
-          <folding>
-            <element signature="n#style#0;n#img#0;n#td#8;n#tr#0;n#tbody#0;n#table#0;n#div#1;n#div#0;n#!!top" expanded="true" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/core/modules/api/controllers/PhotographerController.php">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="1474">
-          <caret line="268" column="21" selection-start-line="268" selection-start-column="12" selection-end-line="268" selection-end-column="21" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/core/modules/api/controllers/RequirementController.php">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="513">
-          <caret line="121" column="49" lean-forward="true" selection-start-line="121" selection-start-column="49" selection-end-line="121" selection-end-column="49" />
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/core/modules/api/models/PhotographerListForm.php">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="377">
-          <caret line="65" column="29" selection-start-line="65" selection-start-column="29" selection-end-line="65" selection-end-column="29" />
+        <state relative-caret-position="130">
+          <caret line="52" column="8" selection-start-line="52" selection-start-column="8" selection-end-line="52" selection-end-column="8" />
         </state>
       </provider>
     </entry>

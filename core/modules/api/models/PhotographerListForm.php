@@ -48,6 +48,9 @@ class PhotographerListForm extends Model
 
     public function search()
     {
+
+
+
         if (!$this->validate())
             return $this->errorResponse;
 
