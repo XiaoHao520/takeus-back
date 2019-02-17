@@ -51,7 +51,7 @@ class PhotographerListForm extends Model
         if (!$this->validate())
             return $this->errorResponse;
 
-        $range = 180 / pi() * 10000 / 6372.797; //里面的 1 就代表搜索 1km 之内，单位km
+        $range = 180 / pi() * 100000 / 6372.797; //里面的 1 就代表搜索 1km 之内，单位km
         $lngR = $range / cos($this->u_lat * pi() / 180.0);
         $maxLat = $this->u_lat + $range;
         $minLat = $this->u_lat - $range;
@@ -81,7 +81,7 @@ class PhotographerListForm extends Model
         if ($this->keyword)
             $query->andWhere(['LIKE', 'p.name', $this->keyword]);
         $count = $query->count();
-        $pagination = new Pagination(['totalCount' => $count, 'page' => $this->page - 1, 'pageSize' => 10,]);
+        $pagination = new Pagination(['totalCount' => $count, 'page' => $this->page - 1, 'pageSize' => 10]);
 
         $query = $query->limit($pagination->limit)->offset($pagination->offset)
             ->select('p.*')
@@ -94,6 +94,9 @@ COS(' . $this->u_lat . ' * PI() / 180) * COS(p.lat * PI() / 180) * POW(SIN((' . 
 
 
         $list = $query->asArray()->all();
+
+
+
         foreach ($list as $i => $item) {
             $label_list = Label::find()->where(['user_id' => $item['user_id'], 'is_delete' => '0'])->asArray()->all();
             $item['labels'] = $label_list;
@@ -109,7 +112,7 @@ COS(' . $this->u_lat . ' * PI() / 180) * COS(p.lat * PI() / 180) * POW(SIN((' . 
             'row_count' => $count,
             'page_count' => $pagination->pageCount,
             'list' => $list,
-            'sum'=>$sum
+            'sum'=>$sum,'sql'=>$sql
         ];
         return new ApiResponse(0, 'success', $data);
     }

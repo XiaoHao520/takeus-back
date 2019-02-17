@@ -53,6 +53,7 @@ use app\modules\api\models\ReOrderListForm;
 use app\modules\api\models\ReOrderPayForm;
 use app\modules\api\models\ReOrderSubmitForm;
 use app\modules\api\models\RewardPayForm;
+use app\modules\api\models\ROrderRevokeForm;
 use app\modules\api\models\TopicFavoriteForm;
 use app\modules\api\models\TopicFavoriteListForm;
 use app\modules\api\models\WechatDistrictForm;
@@ -61,6 +62,7 @@ use app\modules\api\models\OrderMemberForm;
 use app\models\SmsSetting;
 use app\modules\api\models\UserForm;
 use app\extensions\Sms;
+use function foo\func;
 use function PHPSTORM_META\type;
 use yii\db\Exception;
 
@@ -80,7 +82,13 @@ class RequirementController extends Controller
 
     public function actionRequirementTypes()
     {
-        $requirement_types = Requirement::find()->where(['store_id' => $this->store_id, 'is_delete' => 0])->asArray()->all();
+
+        $level_id=\Yii::$app->request->get('level_id');
+
+      //  $requirement_types = Requirement::find()->where(['store_id' => $this->store_id, 'is_delete' => 0])->asArray()->all();
+
+        $requirement_types=Requirement::find()->alias('r')->leftJoin(Taocan::tableName().'t','t.requirement_id=r.id')
+            ->where(['r.store_id'=>$this->store_id,'r.is_delete'=>0,'t.level_id'=>$level_id])->asArray()->all();
         return new BaseApiResponse([
             'code' => 1,
             'data' => $requirement_types
@@ -177,6 +185,20 @@ class RequirementController extends Controller
 
 
     }
+    //订单取消
+     public function actionCancel(){
+
+
+             $form = new ROrderRevokeForm();
+             $form->attributes = \Yii::$app->request->get();
+             $form->store_id = $this->store->id;
+             $form->user_id = \Yii::$app->user->id;
+             return new BaseApiResponse($form->save());
+
+
+     }
+
+
 
     private function getCouponList($goods_total_price)
     {

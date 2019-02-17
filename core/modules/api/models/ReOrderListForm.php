@@ -52,7 +52,7 @@ class ReOrderListForm extends Model
             'ro.is_delete' => 0,
             'ro.store_id' => $this->store_id,
 
-            'ro.is_cancel' => 0
+
         ]);
 
 
