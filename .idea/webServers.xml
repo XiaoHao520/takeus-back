@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="WebServers">
+    <option name="servers">
+      <webServer id="0aeb7040-8c7d-4b68-9add-3c1c3af04d8f" name="sy.sinbel.cn" url="http://193.112.73.192">
+        <fileTransfer host="193.112.73.192" port="21" rootFolder="/addons/zjhj_mall">
+          <advancedOptions>
+            <advancedOptions dataProtectionLevel="Private" passiveMode="true" shareSSLContext="true" />
+          </advancedOptions>
+          <option name="port" value="21" />
+        </fileTransfer>
+      </webServer>
+      <webServer id="55f2c1d1-7169-4caf-b23a-47b9a925c098" name="sy.takeus.cn" url="http://39.108.222.22">
+        <fileTransfer host="39.108.222.22" port="21" rootFolder="/addons/zjhj_mall">
+          <advancedOptions>
+            <advancedOptions dataProtectionLevel="Private" passiveMode="true" shareSSLContext="true" />
+          </advancedOptions>
+          <option name="port" value="21" />
+        </fileTransfer>
+      </webServer>
+    </option>
+  </component>
+</project>

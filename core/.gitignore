@@ -1,0 +1,11 @@
+# local phpunit config
+/phpunit.xml
+
+# tests
+tests/_output/*
+tests/_support/_generated
+
+# hejiang application files
+install.lock.php
+config/ind_db.php
+.env
