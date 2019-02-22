@@ -12,6 +12,7 @@ namespace app\modules\api\models;
 use app\models\FormId;
 use app\models\RequirementOrder;
 use app\models\User;
+use app\models\UserFormId;
 
 class ReOrderSubmitForm extends OrderData
 {
@@ -71,13 +72,18 @@ class ReOrderSubmitForm extends OrderData
 
         if ($order->save()) {
             $user = User::findOne($this->user_id);
-            FormId::addFormId([
+          /*  FormId::addFormId([
                 'store_id' => $this->store_id,
                 'user_id' => $this->user_id,
                 'wechat_open_id' => $user->wechat_open_id,
                 'form_id' => $this->form_id,
                 'type' => 'form_id',
                 'order_no' => $order->order_no,
+            ]);*/
+
+            UserFormId::saveFormId([
+                'user_id' => $this->user_id,
+                'form_id' => $this->form_id,
             ]);
 
 

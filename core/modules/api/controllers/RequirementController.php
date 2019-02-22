@@ -253,17 +253,13 @@ class RequirementController extends Controller
 
     public function actionAreaOrder()
     {
-
         $form = new AreaReOrderListForm();
         $u_lat = \Yii::$app->request->get('u_lat');
         $u_lon = \Yii::$app->request->get('u_lon');
         $form->store_id = $this->store_id;
-
         $form->u_lat = $u_lat;
         $form->u_lon = $u_lon;
         return new BaseApiResponse($form->search());
-
-
     }
 
 
@@ -290,6 +286,32 @@ class RequirementController extends Controller
 
         return new BaseApiResponse($form->search());
     }
+
+    public function actionUploadProduct(){
+        $order_id=\Yii::$app->request->post('order_id');
+
+        $pic_list=\Yii::$app->request->post('pic_list');
+
+        $pic_list = json_decode($pic_list, true);
+
+
+        foreach ($pic_list as $pic_url) {
+
+            $orderPic = new OrderPic();
+            $orderPic->url = $pic_url;
+            $orderPic->order_id = $order_id;
+            $orderPic->is_delete = 0;
+            $orderPic->addtime = time();
+            $orderPic->store_id = $this->store_id;
+            $orderPic->is_compress = 0;
+            $orderPic->save();
+        }
+    }
+
+
+
+
+
 
 
     public function actionDownload()
@@ -320,20 +342,12 @@ class RequirementController extends Controller
             }
         }
         $form->user_id = $user_id;
-
-
-
-
-
-
-
         OrderMsg::updateAll(['is_read' => 1], ['store_id' => $this->store_id, 'user_id' => $user_id, 'is_delete' => 0]);
         return new BaseApiResponse($form->search());
     }
 
     public function actionConfirm()
     {
-
         $order_id = \Yii::$app->request->get('order_id');
         $order = RequirementOrder::findOne(['id' => $order_id, 'status' => 3, 'is_pay' => 1, 'is_cancel' => 0, 'is_delete' => 0,'is_confirm'=>0]);
         $t = \Yii::$app->db->beginTransaction();
@@ -373,7 +387,7 @@ class RequirementController extends Controller
                                     $money_record->addtime = time();
                                     $money_record->store_id = $this->store_id;
                                     if ($money_record->save()) {
-                                        $user->money += ($all_money-$all_money*$store->rate/100);
+                                        $user->money += ($all_money);
                                         $user->save();
 
 

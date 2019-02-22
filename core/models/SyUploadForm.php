@@ -138,6 +138,8 @@ class SyUploadForm extends Model
 
         $fileMd5 = md5_file($this->image->tempName);
         $saveName = $fileMd5 . '.' . $this->image->extension;
+
+
         $saveDir = 'uploads/image/' . substr($saveName, 0, 2) . '/';
         $res = $this->saveFile($this->image->tempName, $saveDir, $saveName,1);
         if ($res['code'] == 0) {

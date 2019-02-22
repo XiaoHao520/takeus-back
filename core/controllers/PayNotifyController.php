@@ -307,7 +307,7 @@ class PayNotifyController extends Controller
                 ->leftJoin(Photographer::tableName() . 'p', 'p.id=ro.photographer_id')
                 ->leftJoin(User::tableName() . 'u', 'u.id=ro.user_id')
                 ->where(['ro.id' => $order->id])
-                ->select('p.user_id,ro.user_id as r_user,u.nickname')->asArray()->one();
+                ->select('p.user_id,ro.user_id as r_user,u.nickname,ro.id')->asArray()->one();
 
             $msg = new MoneyMsg();
             $msg->user_id = $photographer_order['user_id'];
@@ -318,6 +318,17 @@ class PayNotifyController extends Controller
             $msg->price = $order->pay_price;
             $msg->addtime = time();
             $msg->save();
+
+            $order_msg = new OrderMsg();
+            $order_msg->store_id = $order->store_id;
+            $order_msg->user_id = $photographer_order['user_id'];
+            $order_msg->detail = '用户：' . $photographer_order['nickname'] . ' 向您发起了一个新的订单';
+            $order_msg->addtime = time();
+            $order_msg->order_id = $photographer_order['id'];
+            $order_msg->save();
+
+
+
             //支付完成之后，相关的操作
             $form = new OrderWarn();
             $form->order_id = $order->id;
@@ -328,6 +339,25 @@ class PayNotifyController extends Controller
                 $user_coupon->is_use = 1;
                 $user_coupon->save();
             }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
             echo '<xml><return_code><![CDATA[SUCCESS]]></return_code><return_msg><![CDATA[OK]]></return_msg></xml>';
             return;
         } else {
@@ -399,6 +429,24 @@ class PayNotifyController extends Controller
             $msg->addtime = time();
             $msg->order_id = $photographer_order['id'];
             $msg->save();
+
+
+            $user=User::findOne( $photographer_order['p_user_id']);
+
+            if($user){
+                $user->money+=$order->price;
+
+            }
+
+
+
+
+
+
+
+
+
+
 
 
             echo '<xml><return_code><![CDATA[SUCCESS]]></return_code><return_msg><![CDATA[OK]]></return_msg></xml>';

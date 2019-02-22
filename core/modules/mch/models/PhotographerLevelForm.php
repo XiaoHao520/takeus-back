@@ -20,6 +20,8 @@ class PhotographerLevelForm extends Model
 
     public $name;
     public $pic_url;
+    public $weight;
+
 
 
 
@@ -33,7 +35,7 @@ class PhotographerLevelForm extends Model
     {
         return [
             [['name', 'store_id'], 'required'],
-            [['store_id'], 'integer'],
+            [['store_id','weight'], 'integer'],
             [['pic_url'], 'string'],
             [['name'], 'string', 'max' => 255],
         ];
@@ -47,7 +49,7 @@ class PhotographerLevelForm extends Model
         return [
             'name' => '分类名称',
             'pic_url' => '分类图片url',
-
+            'weight'=>'权重'
         ];
     }
 
@@ -78,8 +80,6 @@ class PhotographerLevelForm extends Model
     public function save()
     {
         if ($this->validate()) {
-
-
             $level = $this->level;
             if ($level->isNewRecord) {
                 $level->is_delete = 0;

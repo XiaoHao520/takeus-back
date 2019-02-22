@@ -16,6 +16,7 @@ use app\models\FormId;
 use app\models\Label;
 use app\models\Level;
 use app\models\MoneyMsg;
+use app\models\Online;
 use app\models\Option;
 use app\models\Order;
 use app\models\OrderMsg;
@@ -35,6 +36,7 @@ use app\models\UserCard;
 use app\models\UserCenterForm;
 use app\models\UserCenterMenu;
 use app\models\UserFormId;
+use app\models\UserTplMsgSender;
 use app\models\WechatTplMsgSender;
 use app\modules\api\behaviors\LoginBehavior;
 use app\modules\api\models\AddressDeleteForm;
@@ -51,6 +53,7 @@ use app\modules\api\models\PhotographerForm;
 use app\modules\api\models\PhotographerListForm;
 use app\modules\api\models\TopicFavoriteForm;
 use app\modules\api\models\TopicFavoriteListForm;
+use app\modules\api\models\TplMsgForm;
 use app\modules\api\models\WechatDistrictForm;
 use app\modules\api\models\QrcodeForm;
 use app\modules\api\models\OrderMemberForm;
@@ -69,6 +72,11 @@ class PhotographerController extends Controller
         if ($photographer) {
             $form = new PhotographerForm();
             $form->photographer = $photographer;
+            $form->user_id = \Yii::$app->user->identity->id;
+            $form->store_id=$this->store_id;
+
+
+
             return new BaseApiResponse($form->search());
         } else {
             return new BaseApiResponse(['code' => 1, 'msg' => '你不是摄影师']);
@@ -81,18 +89,17 @@ class PhotographerController extends Controller
         $level_list = PhotographerLevel::find()->where(['store_id' => $this->store_id, 'is_delete' => 0])->asArray()->all();
 
 
-
-       if(count($level_list)){
-           return new BaseApiResponse([
-               'code' => 0,
-               'data' => $level_list
-           ]);
-       }else{
-           return new BaseApiResponse([
-               'code' => 1,
-               'msg' => '系统未设置摄影师级别'
-           ]);
-       }
+        if (count($level_list)) {
+            return new BaseApiResponse([
+                'code' => 0,
+                'data' => $level_list
+            ]);
+        } else {
+            return new BaseApiResponse([
+                'code' => 1,
+                'msg' => '系统未设置摄影师级别'
+            ]);
+        }
 
 
     }
@@ -109,6 +116,33 @@ class PhotographerController extends Controller
         return new BaseApiResponse($form->search());
 
     }
+
+    public function actionAccept()
+    {
+        $status = \Yii::$app->request->get('status');
+        $photographer = Photographer::findOne(['user_id' => \Yii::$app->user->identity->id]);
+        if ($photographer) {
+
+            $photographer->accept = $status;
+            $photographer->save();
+            return new BaseApiResponse([
+                'code' => 0,
+                'msg' => '更新成功'
+
+            ]);
+        } else {
+
+
+            return new BaseApiResponse([
+                'code' => 1,
+                'msg' => '更新失败'
+
+            ]);
+        }
+
+
+    }
+
 
     public function actionUpdateLocation()
     {
@@ -146,8 +180,6 @@ class PhotographerController extends Controller
 
     public function actionApply()
     {
-
-
         $model = \Yii::$app->request->post();
         $user_id = \Yii::$app->user->identity->id;
         $model['user_id'] = $user_id;
@@ -165,22 +197,17 @@ class PhotographerController extends Controller
         $photographer = new Photographer();
         $photographer->attributes = $model;
         ProductList::updateAll(['is_delete' => 1], ['user_id' => $user_id]);
-        $product_list=json_decode($model['product_list']);
+        $product_list = json_decode($model['product_list']);
 
         foreach ($product_list as $pic_url) {
             $product_pic = new ProductList();
             $product_pic->user_id = $user_id;
             $product_pic->pic_url = $pic_url;
             $product_pic->is_delete = 0;
-            $product_pic->addtime=time();
-            $product_pic->store_id=$this->store_id;
+            $product_pic->addtime = time();
+            $product_pic->store_id = $this->store_id;
             $product_pic->save();
         }
-
-
-
-
-
 
 
         return new BaseApiResponse($photographer->savePhotographer());
@@ -239,8 +266,13 @@ class PhotographerController extends Controller
 
             if ($photographer->save()) {
                 if ($hide) {
+
+                    $this->updateOnline(strtotime(date('Y-m-d 00:00:00')), strtotime(date('Y-m-d 23:59:59')),1);
+
                     return new BaseApiResponse(['code' => 0, 'msg' => '隐藏成功，其他用户无法看到您的位置']);
                 } else {
+                    $this->updateOnline(strtotime(date('Y-m-d 00:00:00')), strtotime(date('Y-m-d 23:59:59')),0);
+
                     return new BaseApiResponse(['code' => 0, 'msg' => '开启成功']);
                 }
 
@@ -249,6 +281,56 @@ class PhotographerController extends Controller
 
             }
 
+        }
+
+
+    }
+
+    private function updateOnline($start, $end,$hide)
+ {
+        $user_id = \Yii::$app->user->identity->id;
+
+        if($hide==1){
+            $query = Online::find()->where([
+                'store_id' => $this->store_id,
+                'user_id' => $user_id,
+            ]);
+            if (is_int($start)) {
+                $query->andWhere(['>=', 'addtime', $start]);
+            }
+            if (is_int($end)) {
+                $query->andWhere(['<=', 'addtime', $end]);
+            }
+            $online = $query->one();
+            if ($online) {
+
+                $online->end=time();
+                $online->save();
+
+            } else {
+
+            }
+
+        }else{
+            $query = Online::find()->where([
+                'store_id' => $this->store_id,
+                'user_id' => $user_id,
+            ]);
+            if (is_int($start)) {
+                $query->andWhere(['>=', 'addtime', $start]);
+            }
+            if (is_int($end)) {
+                $query->andWhere(['<=', 'addtime', $end]);
+            }
+            $online = $query->one();
+            if (!$online) {
+                $online = new Online();
+                $online->store_id = $this->store_id;
+                $online->user_id = $user_id;
+                $online->start = time();
+                $online->addtime = time();
+                $online->save();
+            }
         }
 
 
@@ -376,14 +458,10 @@ class PhotographerController extends Controller
     {
         $order_id = \Yii::$app->request->get('order_id');
         $order = RequirementOrder::findOne(['id' => $order_id, 'status' => 1, 'is_pay' => 1]);
-
-
         if ($order) {
             $order->access_time = time();
             $order->status = 2;
-
             if ($order->save()) {
-
                 $photographer = Photographer::findOne($order->photographer_id);
                 if ($photographer) {
                     $msg = new OrderMsg();
@@ -394,11 +472,11 @@ class PhotographerController extends Controller
                     $msg->order_id = $order->id;
                     $msg->save();
                 }
-                    $receive=new OrderReceiveForm();
+                $receive = new OrderReceiveForm();
 
-                    $receive->order_id=$order->id;
-                    $receive->store_id=$this->store_id;
-                    $receive->save();
+                $receive->order_id = $order->id;
+                $receive->store_id = $this->store_id;
+                $receive->save();
 
 
                 return new BaseApiResponse([
@@ -459,7 +537,7 @@ class PhotographerController extends Controller
         $photographer = Photographer::findOne(['user_id' => $user_id]);
         if ($photographer) {
 
-            $order_list = OrderMsg::find()->where(['user_id' => $user_id, 'is_delete' => 0,'is_read'=>0])->asArray()->all();
+            $order_list = OrderMsg::find()->where(['user_id' => $user_id, 'is_delete' => 0, 'is_read' => 0])->asArray()->all();
             $count = count($order_list);
             if ($count > 0) {
                 $order = $order_list[0];
@@ -515,10 +593,7 @@ class PhotographerController extends Controller
         } else {
             $detail = '暂无消息';
         }
-
         return ['detail' => $detail, 'code' => 0, 'count' => count($msg_list)];
-
-
     }
 
 
@@ -537,7 +612,6 @@ class PhotographerController extends Controller
                 $reward->order_no = $this->getOrderNo();
                 $reward->addtime = time();
                 if ($reward->save()) {
-
                     $photographer = Photographer::findOne($order->photographer_id);
                     if ($photographer) {
                         $msg = new OrderMsg();
@@ -548,6 +622,13 @@ class PhotographerController extends Controller
                         $msg->order_id = $order->id;
                         $msg->save();
                     }
+
+
+                  $msgForm= new TplMsgForm();
+                     $msgForm->store_id=$this->store_id;
+                     $msgForm->user_id=$order->user_id;
+                     $msgForm->order_id=$order_id;
+                     $msgForm->sendAddPriceMsg();
 
 
                     return new BaseApiResponse([

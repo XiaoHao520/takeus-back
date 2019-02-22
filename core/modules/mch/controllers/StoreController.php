@@ -25,8 +25,10 @@ use app\models\HomeBlock;
 use app\models\HomeNav;
 use app\models\HomePageModule;
 use app\models\MailSetting;
+use app\models\Online;
 use app\models\Option;
 use app\models\Order;
+use app\models\Photographer;
 use app\models\PhotographerLevel;
 use app\models\PostageRules;
 use app\models\Requirement;
@@ -75,6 +77,7 @@ use app\modules\mch\models\WxdevToolLoginForm;
 use app\modules\mch\models\WxdevToolPreviewForm;
 use app\modules\mch\models\WxdevToolUploadForm;
 use Comodojo\Zip\Zip;
+use yii\data\Pagination;
 
 class StoreController extends Controller
 {
@@ -94,6 +97,66 @@ class StoreController extends Controller
             ]);
         }
     }
+
+
+
+
+
+    public function actionOnline()
+    {
+
+
+        $yesterday_start = strtotime(date("Y-m-d 00:00:00", strtotime("-1 day")));
+
+        $yesterday_end =$yesterday_start+23*59*60+59;
+
+        $query = Online::find()->alias('o')->where(['o.store_id' => $this->store->id]);
+        $query->leftJoin(['p' => Photographer::tableName()], 'o.user_id=p.user_id');
+
+        if (is_int($yesterday_start)) {
+            $query->andWhere(['>', 'o.addtime', $yesterday_start]);
+        }
+        if (is_int($yesterday_end)) {
+            $query->andWhere(['<', 'o.addtime', $yesterday_end]);
+        }
+
+
+        $query->select('p.*,o.start,o.end,o.total,o.addtime');
+        $count = $query->count();
+        $pagination = new Pagination(['totalCount' => $count]);
+        $list = $query->orderBy('o.addtime DESC')
+            ->limit($pagination->limit)
+            ->offset($pagination->offset)
+            ->asArray()
+            ->all();
+
+
+        return $this->render('online', [
+            'list' => $list,
+            'pagination' => $pagination,
+            'count'=>$count
+        ]);
+    }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
     /**
      * 基本信息

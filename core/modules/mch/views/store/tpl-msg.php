@@ -46,7 +46,7 @@ $this->params['active_nav_group'] = 1;
                 </div>
             </div>
 
-            <div class="form-group row">
+            <div class="form-group row" hidden>
                 <div class="form-group-label col-sm-2 text-right">
                     <label class="col-form-label">发货通知模板消息id</label>
                 </div>

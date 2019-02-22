@@ -212,11 +212,9 @@ class DefaultController extends Controller
     public function actionUploadImageWithOrder()
     {
         $form = new SyUploadForm();
-
         $upload_config = UploadConfig::findOne(['store_id' => $this->store->id]);
         $form->upload_config = $upload_config;
         $data = $form->saveImage('image');
-
         $url = $data['data']['url'];
         $order_id = \Yii::$app->request->post('order_id');
         $orderPic = new OrderPic();
@@ -227,9 +225,10 @@ class DefaultController extends Controller
         $orderPic->store_id = $this->store_id;
         $orderPic->is_compress = 0;
         $orderPic->save();
-        $data_compress = $form->saveImageCompress('image');
+
+      /*  $data_compress = $form->saveImageCompress('image');
         $data = $data_compress;
-        $url = $data['data']['url'];
+        $url = $data['data']['url'];*/
         $order_id = \Yii::$app->request->post('order_id');
         $orderPic = new OrderPic();
         $orderPic->url = $url;
@@ -239,8 +238,6 @@ class DefaultController extends Controller
         $orderPic->store_id = $this->store_id;
         $orderPic->is_compress = 1;
         $orderPic->save();
-
-
         return new BaseApiResponse($data);
     }
 

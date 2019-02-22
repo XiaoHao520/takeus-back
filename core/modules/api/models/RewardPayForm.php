@@ -66,10 +66,6 @@ class RewardPayForm extends Model
                 'store_id' => $this->store_id,
                 'id' => $this->order_id,
             ]);
-
-
-
-
             if (!$this->order)
                 return [
                     'code' => 1,

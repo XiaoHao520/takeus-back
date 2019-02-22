@@ -8,6 +8,7 @@
 
 namespace app\modules\api\models;
 
+use app\models\Online;
 use app\models\RequirementOrder;
 use app\models\User;
 use Curl\Curl;
@@ -16,6 +17,7 @@ class PhotographerForm extends Model
     public $store_id;
 
     public $photographer;
+    public $user_id;
 
 
 
@@ -27,9 +29,63 @@ class PhotographerForm extends Model
                 'data1' => $this->getPaySum(strtotime(date('Y-m-d 00:00:00')), strtotime(date('Y-m-d 23:59:59'))),
                 'data2' => $this->getPayOrderCount(strtotime(date('Y-m-d 00:00:00')), strtotime(date('Y-m-d 23:59:59'))),
                 'data3' => $this->getAllOrder(strtotime(date('Y-m-d 00:00:00')), strtotime(date('Y-m-d 23:59:59'))),
+                'user'=>$this->getUserInfo(),
+                'online'=>$this->yestodayOnline()
             ],
         ];
     }
+
+
+
+    private  function  yestodayOnline(){
+
+        $yesterday = strtotime(date("Y-m-d 00:00:00", strtotime("-1 day")));
+
+
+        $query = Online::find()->where(['store_id' => $this->store_id,'user_id'=>$this->user_id]);
+        if (is_int($yesterday)) {
+            $query->andWhere(['>', 'addtime', $yesterday]);
+        }
+        $yes_end = $yesterday + 23 * 60 * 60 + 59 * 60+59;
+        if (is_int($yes_end)) {
+            $query->andWhere(['<', 'addtime', $yes_end]);
+        }
+        $online = $query->one();
+
+        if($online){
+            return $online;
+
+        }else{
+            return 0;
+        }
+
+
+
+
+
+
+
+
+
+    }
+
+
+    private function getUserInfo(){
+
+         $user=User::findOne($this->user_id);
+         if($user){
+             return $user;
+
+         }else{
+
+
+             return null;
+
+         }
+
+
+    }
+
 
     //获取付款金额
     public function getPaySum($start_time = null, $end_time = null)

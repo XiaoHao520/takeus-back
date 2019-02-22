@@ -33,11 +33,8 @@ class OrderReceiveForm extends Model
             $wechat_tpl_meg_sender->sendReceiveMsg();
         } catch (\Exception $e) {
             \Yii::warning($e->getMessage());
-
               var_dump($e->getMessage());
               die;
-
-
         }
     }
 

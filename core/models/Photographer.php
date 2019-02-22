@@ -24,6 +24,7 @@ use Yii;
  * @property integer $is_hide
  * @property  integer $id_card
  * @property string $mobile
+ * @property integer $accept
  */
 class  Photographer extends \yii\db\ActiveRecord
 {
@@ -42,7 +43,7 @@ class  Photographer extends \yii\db\ActiveRecord
     {
         return [
             [['store_id', 'name','header_url','level_id','user_id'], 'required'],
-            [['store_id' , 'addtime', 'is_delete','status','sex','is_hide'], 'integer'],
+            [['store_id' , 'addtime', 'is_delete','status','sex','is_hide','accept'], 'integer'],
             [['header_url','id_card','mobile'], 'string'],
             [['lat','lon'],'double'],
             [['name','header_url','address','details','id_card'], 'string', 'max' => 255],
@@ -71,7 +72,8 @@ class  Photographer extends \yii\db\ActiveRecord
             'sex'=>'性别',
             'is_hide'=>'隐藏位置',
             'id_card'=>'身份证',
-            'mobile'=>'手机号'
+            'mobile'=>'手机号',
+            'accept'=>'接受低级单'
         ];
     }
 

@@ -51,6 +51,10 @@ class PhotographerListForm extends Model
         if (!$this->validate())
             return $this->errorResponse;
 
+
+        $level = PhotographerLevel::findOne($this->level_id);
+
+
         $range = 180 / pi() * 100000 / 6372.797; //里面的 1 就代表搜索 1km 之内，单位km
         $lngR = $range / cos($this->u_lat * pi() / 180.0);
         $maxLat = $this->u_lat + $range;
@@ -63,8 +67,8 @@ class PhotographerListForm extends Model
                 'p.store_id' => $this->store_id,
                 'p.is_delete' => 0,
                 'p.is_hide' => 0,
-                'p.status'=>1
-            ])->orderBy('m.sort,m.addtime DESC');
+                'p.status' => 1
+            ]);
         if ($this->u_lat) {
             $query->andWhere(['between', 'p.lat', $minLat, $maxLat]);
         }
@@ -76,10 +80,23 @@ class PhotographerListForm extends Model
         if ($this->store_id)
             $query->andWhere(['p.store_id' => $this->store_id]);
         if ($this->level_id) {
-            $query->andWhere(['>=','p.level_id',$this->level_id]);
+            /* if($this->level_id>1){
+                 $query->andWhere(['p.accept'=>1]);
+             }*/
+            //$query->andWhere(['>=','p.level_id',$this->level_id]);
+
+            $query->leftJoin(PhotographerLevel::tableName() . 'pl', 'pl.id=p.level_id')
+                ->andWhere(['>=', 'pl.weight', $level->weight]);
         }
+
+
+
+
+
         if ($this->keyword)
             $query->andWhere(['LIKE', 'p.name', $this->keyword]);
+
+
         $count = $query->count();
         $pagination = new Pagination(['totalCount' => $count, 'page' => $this->page - 1, 'pageSize' => 10]);
 
@@ -91,28 +108,34 @@ COS(' . $this->u_lat . ' * PI() / 180) * COS(p.lat * PI() / 180) * POW(SIN((' . 
             ->orderBy('distance ASC');
 
         $sql = $query->createCommand()->rawSql;
-
-
         $list = $query->asArray()->all();
 
 
 
+
+
+        $new_list = [];
+
         foreach ($list as $i => $item) {
             $label_list = Label::find()->where(['user_id' => $item['user_id'], 'is_delete' => '0'])->asArray()->all();
             $item['labels'] = $label_list;
-            $level = PhotographerLevel::findOne($item['level_id']);
-            $item['level'] = $level->name;
+            $level_1 = PhotographerLevel::findOne($item['level_id']);
+            $item['level'] = $level_1->name;
+            if ($level_1->weight > $level->weight) {
+                if ($item['accept'] == 0) {
+                    continue;
+                }
+            }
 
-            $list[$i] = $item;
+
+            array_push($new_list, $item);
         }
-        $sum= Photographer::find()->where(['store_id'=>$this->store_id])->count();
-
-
+        $sum = Photographer::find()->where(['store_id' => $this->store_id])->count();
         $data = [
             'row_count' => $count,
             'page_count' => $pagination->pageCount,
-            'list' => $list,
-            'sum'=>$sum,'sql'=>$sql
+            'list' => $new_list,
+            'sum' => $sum, 'sql' => $sql
         ];
         return new ApiResponse(0, 'success', $data);
     }

@@ -17,7 +17,6 @@ use app\models\MiaoshaGoods;
 use app\models\MsGoods;
 use app\models\MsOrder;
 use app\models\MsOrderRefund;
-use app\models\Online;
 use app\models\Order;
 use app\models\OrderDetail;
 use app\models\OrderRefund;
@@ -41,13 +40,12 @@ use yii\web\Controller;
 class OrderBehavior extends BaseBehavior
 {
     protected $only_routes = [
-        /*'mch/photographer/*',
+        'mch/order/*',
         'mch/share/*',
         'mch/miaosha/*',
-        'api/order/*',*/
-        'api/requirement/*',
-        'api/photographer/*',
-        'api/user/*',
+        'api/order/*',
+        'api/share/*',
+        'api/miaosha/*',
     ];
 
     public $store_id;
@@ -62,89 +60,210 @@ class OrderBehavior extends BaseBehavior
             return true;
         }
         \Yii::$app->cache->set($order_behavior_running, true, 60);
+
         $this->store_id = isset(\Yii::$app->controller->store) ? \Yii::$app->controller->store->id : 0;
         if (!$this->store_id) {
             \Yii::$app->cache->delete($order_behavior_running);
             return true;
         }
         $this->store = Store::findOne($this->store_id);
-        $this->yesterday();
-        $this->yesterdayOnlinePay();
+        $this->share_setting = Setting::findOne(['store_id' => $this->store_id]);
+
+        $time = time();
+        if ($this->store->over_day > 0) {
+            $over_day = $time - ($this->store->over_day * 3600);
+            // 用户积分恢复
+            $npOrder = Order::find()->where([
+                'is_pay' => 0, 'store_id' => $this->store_id, 'is_cancel' => 0, 'is_delete' => 0,
+            ])->andWhere(['<=', 'addtime', $over_day])->andWhere(['!=', 'pay_type', 2])->all();
+            foreach ($npOrder as $key => $value) {
+                $integral = json_decode($value['integral'])->forehead_integral;
+                $user = User::findOne(['id' => $value['user_id']]);
+                $user->integral += $integral ? $integral : 0;
+                if ($integral) {
+                    $register = new Register();
+                    $register->store_id = $this->store->id;
+                    $register->user_id = $user->id;
+                    $register->register_time = '..';
+                    $register->addtime = time();
+                    $register->continuation = 0;
+                    $register->type = 6;
+                    $register->integral = $integral;
+                    $register->order_id = $value['id'];
+                    $register->save();
+                }
+                $user->save();
+                //库存恢复
+                $order_detail_list = OrderDetail::find()->where(['order_id' => $value['id'], 'is_delete' => 0])->all();
+                foreach ($order_detail_list as $order_detail) {
+                    $goods = Goods::findOne($order_detail->goods_id);
+                    $attr_id_list = [];
+                    foreach (json_decode($order_detail->attr) as $item) {
+                        array_push($attr_id_list, $item->attr_id);
+                    }
+
+                    $goods->numAdd($attr_id_list, $order_detail->num);
+                }
+                //订单超过设置的未支付时间，自动取消
+                $value->is_cancel = 1;
+                $value->save();
+            }
+            // $count_p = Order::updateAll(
+            //     [
+            //         'is_cancel' => 1,
+            //     ],
+            //     'is_pay=0 and is_cancel=0 and addtime<=:addtime and store_id=:store_id',
+            //     [':addtime' => $over_day, ':store_id' => $this->store_id]
+            // );
+        }
+        $delivery_time = $time - ($this->store->delivery_time * 86400);
+        $sale_time = $time - ($this->store->after_sale_time * 86400);
+        //订单超过设置的确认收货时间，自动确认收货  商城
+        /*
+        $count = Order::updateAll([
+        'is_confirm' => 1, 'confirm_time' => time()],
+        'is_delete=0 and is_send=1 and send_time <= :send_time and store_id=:store_id and is_confirm=0',
+        [':send_time' => $delivery_time, ':store_id' => $this->store_id]);
+         */
+        $order_confirm = Order::find()->where([
+            'is_delete' => 0, 'is_send' => 1, 'store_id' => $this->store_id, 'is_confirm' => 0,
+        ])->andWhere(['<=', 'send_time', $delivery_time])->asArray()->all();
+
+        foreach ($order_confirm as $k => $v) {
+            Order::updateAll(['is_confirm' => 1, 'confirm_time' => time()], ['id' => $v['id']]);
+            $printer_order = new PinterOrder($this->store_id, $v['id'], 'confirm', 0);
+            $res = $printer_order->print_order();
+        }
+
+        //订单超过设置的确认收货时间，自动确认收货  秒杀
+        $order_confirm = MsOrder::find()->where([
+            'is_delete' => 0, 'is_send' => 1, 'store_id' => $this->store_id, 'is_confirm' => 0,
+        ])->andWhere(['<=', 'send_time', $delivery_time])->asArray()->all();
+
+        foreach ($order_confirm as $k => $v) {
+            MsOrder::updateAll(['is_confirm' => 1, 'confirm_time' => time()], ['id' => $v['id']]);
+            $printer_order = new PinterOrder($this->store_id, $v['id'], 'confirm', 1);
+            $res = $printer_order->print_order();
+        }
+
+        //超过设置的售后时间且没有在售后的订单--商城
+        $order_list = Order::find()->alias('o')
+            ->where([
+                'and',
+                ['o.is_delete' => 0, 'o.is_send' => 1, 'o.is_confirm' => 1, 'o.store_id' => $this->store_id, 'o.is_sale' => 0],
+                ['<=', 'o.confirm_time', $sale_time],
+            ])
+            ->leftJoin(OrderRefund::tableName() . ' r', "r.order_id = o.id")
+            ->select(['o.*'])->groupBy('o.id')
+            ->andWhere([
+                'or',
+                'isnull(r.id)',
+                ['r.type' => 2],
+                ['in', 'r.status', [2, 3]],
+                ['r.is_delete' => 0],
+            ])
+            ->offset(0)->limit(20)->asArray()->all();
+        foreach ($order_list as $index => $value) {
+            Order::updateAll(['is_sale' => 1], ['id' => $value['id']]);
+            $this->share_money($value['id']);
+            $this->give_integral($value['id']);
+        }
+
+        //超过设置的售后时间且没有在售后的订单--秒杀
+        $order_list = MsOrder::find()->alias('o')
+            ->where([
+                'and',
+                ['o.is_delete' => 0, 'o.is_send' => 1, 'o.is_confirm' => 1, 'o.store_id' => $this->store_id, 'o.is_sale' => 0, 'is_sum' => 1],
+                ['<=', 'o.confirm_time', $sale_time],
+            ])
+            ->leftJoin(MsOrderRefund::tableName() . ' r', "r.order_id = o.id")
+            ->select(['o.*'])->groupBy('o.id')
+            ->andWhere([
+                'or',
+                'isnull(r.id)',
+                ['r.type' => 2],
+                ['in', 'r.status', [2, 3]],
+                ['r.is_delete' => 0],
+            ])
+            ->offset(0)->limit(20)->asArray()->all();
+        foreach ($order_list as $index => $value) {
+            MsOrder::updateAll(['is_sale' => 1], ['id' => $value['id']]);
+            $this->share_money_ms($value['id']);
+            $this->give_integral_ms($value['id']);
+        }
+
+        //超过设置的售后时间且没有在售后的订单--拼团
+        $order_list = PtOrder::find()->alias('o')
+            ->where([
+                'and',
+                ['o.is_delete' => 0, 'o.is_send' => 1, 'o.is_confirm' => 1, 'o.store_id' => $this->store_id, 'o.is_price' => 0],
+                ['<=', 'o.confirm_time', $sale_time],
+            ])
+            ->leftJoin(PtOrderRefund::tableName() . ' r', "r.order_id = o.id")
+            ->select(['o.*'])->groupBy('o.id')
+            ->andWhere([
+                'or',
+                'isnull(r.id)',
+                ['r.type' => 2],
+                ['in', 'r.status', [2, 3]],
+                ['r.is_delete' => 0],
+            ])
+            ->offset(0)->limit(20)->asArray()->all();
+        foreach ($order_list as $index => $value) {
+            PtOrder::updateAll(['is_price' => 1], ['id' => $value['id']]);
+            $this->share_money_1($value['id']);
+        }
+
+        //入驻商户订单金额转到商户余额，请在判断售后的方法之后调用
+        $this->transferToMch($e);
+
+        //查出所有有订单的会员
+        $userIds = Order::find()->select(['user_id'])
+            ->where(['is_delete' => 0, 'store_id' => $this->store_id, 'is_confirm' => 1, 'is_send' => 1])
+            ->andWhere(['<=', 'confirm_time', $sale_time])
+            ->groupBy('user_id');
+
+        //查如上会员的总消费金额
+        $userWithMoney = (new Query)->from(['uids' => $userIds])->select([
+            'uids.*',
+            'order_money' => Order::find()
+                ->where(['store_id' => $this->store_id, 'is_delete' => 0])
+                ->andWhere('user_id = uids.user_id')
+                ->andWhere(['is_pay' => 1, 'is_confirm' => 1, 'is_send' => 1])
+                ->andWhere(['<=', 'confirm_time', $sale_time])
+                ->select(['sum(pay_price)']),
+        ]);
+
+        //查如上会员的当前等级金额
+        $userList = User::find()
+            ->alias('u')
+            ->select(['u.*', 'uids.order_money'])
+            ->innerJoin(['uids' => $userWithMoney], 'uids.user_id = u.id')
+            ->andWhere('uids.order_money is not null')
+            ->all();
+
+        //查会员等级
+        $levelList = Level::find()
+            ->where(['store_id' => $this->store_id, 'is_delete' => 0, 'status' => 1])
+            ->orderBy(['money' => SORT_DESC, 'id' => SORT_DESC])
+            ->asArray()->all();
+
+        //调整会员等级
+        foreach ($userList as $user) {
+            foreach ($levelList as $level) {
+                if ($user->order_money >= $level['money']) {
+                    if ($user->level < $level['level']) {
+                        $user->level = $level['level'];
+                        $user->save();
+                    }
+                    break;
+                }
+            }
+        }
+        \Yii::$app->cache->delete($order_behavior_running);
+
+        $this->checkMsNoPayOrderTimeout($e); //处理未在规定时间内付款的秒杀订单
     }
-
-    private function yesterday()
-    {
-        $yesterday = strtotime(date("Y-m-d 00:00:00", strtotime("-1 day")));
-        $today = strtotime(date('Y-m-d 00:00:00'));
-        $query = Online::find()->where(['store_id' => $this->store_id, 'total' => 0, 'is_pay' => 0]);
-        if (is_int($yesterday)) {
-            $query->andWhere(['>', 'addtime', $yesterday]);
-        }
-        if (is_int($today)) {
-            $query->andWhere(['<', 'addtime', $today]);
-        }
-        $online_list = $query->limit(20)->asArray()->all();
-
-        $yes_end = $yesterday + 23 * 60 * 60 + 59 * 60+59;
-        foreach ($online_list as $item) {
-
-            $online = Online::findOne($item['id']);
-            if(!$online){
-                return;
-            }
-            if($item['end']==0){
-                $yes_end=$yes_end;
-            }else{
-                $yes_end=$item['end'];
-            }
-            $sub =($yes_end - $online->start)/(60 * 60);
-            $sub= sprintf("%.2f",$sub);
-            if($sub>=5){
-                 $sub=5;
-            }
-            if ($sub==0){
-                $online->end =$yes_end;
-            }else{
-                $online->end = $online->start + $sub * 60 * 60;
-            }
-            $online->total = $sub;
-            $online->save();
-        }
-    }
-
-
-    private function yesterdayOnlinePay()
-    {
-        $yesterday = strtotime(date("Y-m-d 00:00:00", strtotime("-1 day")));
-        $today = strtotime(date('Y-m-d 00:00:00'));
-        $query = Online::find()->where(['store_id' => $this->store_id, 'is_pay' => 0])
-            ->andWhere(['>', 'total', 0]);
-
-
-
-        if (is_int($yesterday)) {
-            $query->andWhere(['>', 'addtime', $yesterday]);
-        }
-        if (is_int($today)) {
-            $query->andWhere(['<', 'addtime', $today]);
-        }
-        $online_list = $query->limit(20)->asArray()->all();
-        foreach ($online_list as $item) {
-            $online = Online::findOne($item['id']);
-
-            Online::updateAll(['is_pay'=>1],['id'=>$item['id']]);
-
-
-             $user=User::findOne($online->user_id);
-             if($user){
-                 $user->money+=$online->total;
-                 $user->save();
-             }
-            $online->is_pay;
-            $online->save();
-        }
-    }
-
 
     /**
      * @param $parent_id

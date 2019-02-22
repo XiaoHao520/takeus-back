@@ -20,6 +20,7 @@ use app\models\RequirementOrder;
 use app\models\User;
 use app\models\UserAccountLog;
 use app\models\UserCoupon;
+use app\models\UserTplMsgSender;
 use app\models\WechatTplMsgSender;
 
 class ROrderRevokeForm extends Model
@@ -46,7 +47,7 @@ class ROrderRevokeForm extends Model
             'user_id' => $this->user_id,
             'id' => $this->order_id,
             'is_delete' => 0,
-            'is_cancel'=>0
+            'is_cancel' => 0
         ]);
         if (!$order) {
             return [
@@ -61,21 +62,21 @@ class ROrderRevokeForm extends Model
         $user = User::findOne(['id' => $order->user_id]);
 
 
-        $refund_price=$order->pay_price;
+        $refund_price = $order->price;
 
 
-           if($order->coupon_id){
-               $userCoupon=UserCoupon::findOne($order->coupon_id);
-               if($userCoupon){
-                   $userCoupon->is_use=0;
-                       $coupon=Coupon::findOne($userCoupon->coupon_id);
-                        $refund_price-=$coupon->sub_price;
+        if ($order->coupon_id) {
+            $userCoupon = UserCoupon::findOne($order->coupon_id);
+            if ($userCoupon) {
+                $userCoupon->is_use = 0;
+                $coupon = Coupon::findOne($userCoupon->coupon_id);
+                $refund_price -= $coupon->sub_price;
+                $userCoupon->save();
 
 
-                   $userCoupon->save();
-               }
-           }
 
+            }
+        }
 
 
         //已付款就退款
@@ -87,6 +88,11 @@ class ROrderRevokeForm extends Model
                 'total_fee' => $refund_price * 100,
                 'refund_fee' => $refund_price * 100,
             ];
+
+
+
+
+
             $res = $wechat->pay->refund($data);
             if (!$res) {
                 $t->rollBack();
@@ -113,19 +119,16 @@ class ROrderRevokeForm extends Model
             }
         }
 
-
-        $order->is_cancel=1;
-
+        $order->is_cancel = 1;
         if ($order->save()) {
             $t->commit();
-
+            $tpl_msg=new UserTplMsgSender($this->store_id,$this->user_id,$order->id,$this->getWechat());
+            $tpl_msg->revokeMsg();
             return [
                 'code' => 0,
                 'msg' => '退款成功',
 
             ];
-
-
         } else {
             $t->rollBack();
             return [

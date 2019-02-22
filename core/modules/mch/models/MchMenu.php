@@ -249,6 +249,12 @@ class MchMenu
                             'mch/store/photographer-edit',
                         ],
                     ],
+                    [
+
+                        'name' => '在线记录',
+                        'route' => 'mch/store/online',
+
+                    ],
 
 
                 ],

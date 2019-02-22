@@ -17,6 +17,7 @@ use app\models\CouponMsg;
 use app\models\FormId;
 use app\models\Level;
 use app\models\MoneyRecord;
+use app\models\Online;
 use app\models\Option;
 use app\models\Order;
 use app\models\OrderMsg;
@@ -134,6 +135,8 @@ class UserController extends Controller
 
             $name = "摄影中心";
 
+            $this->updateOnline(strtotime(date('Y-m-d 00:00:00')), strtotime(date('Y-m-d 23:59:59')));
+
         } else {
             $name = "成为摄影师";
         }
@@ -173,6 +176,37 @@ class UserController extends Controller
                 ]
             ],
         ]);
+    }
+
+    private function updateOnline($start, $end)
+    {
+        $user_id = \Yii::$app->user->identity->id;
+        $query = Online::find()->where([
+            'store_id' => $this->store_id,
+            'user_id' => $user_id,
+
+        ]);
+        if (is_int($start)) {
+            $query->andWhere(['>=', 'addtime', $start]);
+        }
+        if (is_int($end)) {
+            $query->andWhere(['<=', 'addtime', $end]);
+        }
+        $online = $query->one();
+        if ($online) {
+
+        } else {
+            $photographer = Photographer::findOne(['user_id' => $user_id, 'status' => 1]);
+            if ($photographer) {
+                $online = new Online();
+                $online->store_id = $this->store_id;
+                $online->user_id = $user_id;
+                $online->start = time();
+                $online->addtime = time();
+                $online->save();
+
+            }
+        }
     }
 
 

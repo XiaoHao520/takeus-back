@@ -104,10 +104,7 @@ class UserTplMsgSender
      */
     public function payNewOrderMsg()
     {
-        $err=new Error();
-        $err->store_id=$this->store_id;
-        $err->details=$this->wechat_template_message->new_order_tpl;
-        $err->save();
+
         try {
             if (!$this->wechat_template_message->new_order_tpl)
                 return;
@@ -127,7 +124,7 @@ class UserTplMsgSender
                 'touser' => $this->user->wechat_open_id,
                 'template_id' => $this->wechat_template_message->pay_tpl,
                 'form_id' => $this->form_id->form_id,
-                'page' => 'pages/photographer/order/order?status=1',
+                'page' => 'pages/index/index',
                 'data' => [
                     'keyword1' => [
                         'value' => $this->order->order_no,
@@ -181,22 +178,15 @@ class UserTplMsgSender
         try {
             if (!$this->wechat_template_message->revoke_tpl)
                 return;
-            $goods_list = OrderDetail::find()
-                ->select('g.name,od.num')
-                ->alias('od')->leftJoin(['g' => Goods::tableName()], 'od.goods_id=g.id')
-                ->where(['od.order_id' => $this->order->id, 'od.is_delete' => 0])->asArray()->all();
-            $goods_names = '';
-            foreach ($goods_list as $goods) {
-                $goods_names .= $goods['name'];
-            }
+
             $data = [
                 'touser' => $this->user->wechat_open_id,
                 'template_id' => $this->wechat_template_message->revoke_tpl,
                 'form_id' => $this->form_id->form_id,
-                //'page' => 'pages/order/order?status=' . ($this->order->is_pay == 1 ? 1 : 0),
+                'page' => 'pages/index/index',
                 'data' => [
                     'keyword1' => [
-                        'value' => $goods_names,
+                        'value' => '摄影订单取消退款',
                         'color' => '#333333',
                     ],
                     'keyword2' => [
@@ -204,20 +194,71 @@ class UserTplMsgSender
                         'color' => '#333333',
                     ],
                     'keyword3' => [
-                        'value' => $this->order->total_price,
+                        'value' => $this->order->pay_price,
                         'color' => '#333333',
                     ],
-                    'keyword4' => [
-                        'value' => $remark,
-                        'color' => '#333333',
-                    ],
+
                 ],
             ];
+
+
             $this->sendTplMsg($data);
         } catch (\Exception $e) {
             \Yii::warning($e->getMessage());
         }
     }
+
+
+    /**
+     * 增加服务费通知
+     */
+    public function addPriceMsg($remark = '订单已取消')
+    {
+        try {
+            if (!$this->wechat_template_message->add_service_tpl)
+                return;
+
+
+
+
+
+            $reward=Reward::findOne(['order_id'=>$this->order->id]);
+
+
+            $data = [
+                'touser' => $this->user->wechat_open_id,
+                'template_id' => $this->wechat_template_message->revoke_tpl,
+                'form_id' => $this->form_id->form_id,
+                'page' => 'pages/index/index',
+                'data' => [
+
+                    'keyword1' => [
+                        'value' => $this->order->order_no,
+                        'color' => '#333333',
+                    ],
+                    'keyword2' => [
+                        'value' => '服务费通知',
+                        'color' => '#333333',
+                    ],
+                    'keyword3' => [
+                        'value' => '你的订单增加了服务费用',
+                        'color' => '#333333',
+                    ],
+                    'keyword3' => [
+                        'value' => $reward->price,
+                        'color' => '#333333',
+                    ],
+
+                ],
+            ];
+
+
+            $this->sendTplMsg($data);
+        } catch (\Exception $e) {
+            \Yii::warning($e->getMessage());
+        }
+    }
+
 
     /**
      * 发送发货模板消息
@@ -239,7 +280,7 @@ class UserTplMsgSender
                 'touser' => $this->user->wechat_open_id,
                 'template_id' => $this->wechat_template_message->send_tpl,
                 'form_id' => $this->form_id->form_id,
-                'page' => 'pages/order/order?status=2',
+                'page' => 'pages/index/index',
                 'data' => [
                     'keyword1' => [
                         'value' => $goods_names,
@@ -287,7 +328,7 @@ class UserTplMsgSender
                 'touser' => $this->user->wechat_open_id,
                 'template_id' => $this->wechat_template_message->receive_tpl,
                 'form_id' => $this->form_id->form_id,
-                'page' => 'pages/requirement/order/order?status=2',
+                'page' => 'pages/index/index',
                 'data' => [
                     'keyword1' => [
                         'value' => $this->order->order_no,
@@ -341,7 +382,7 @@ class UserTplMsgSender
                 'touser' => $this->user->wechat_open_id,
                 'template_id' => $this->wechat_template_message->receive_tpl,
                 'form_id' => $this->form_id->form_id,
-                'page' => 'pages/requirement/order/order?status=2',
+                'page' => 'pages/index/index',
                 'data' => [
                     'keyword1' => [
                         'value' => $this->order->order_no,
@@ -395,7 +436,7 @@ class UserTplMsgSender
                 'touser' => $this->user->wechat_open_id,
                 'template_id' => $this->wechat_template_message->refund_tpl,
                 'form_id' => $this->form_id->form_id,
-                'page' => 'pages/order/order?status=4',
+                'page' => 'pages/index/index',
                 'data' => [
                     'keyword1' => [
                         'value' => $refund_price,
@@ -431,6 +472,9 @@ class UserTplMsgSender
         $this->wechat->curl->post($api, $data);
         $res = json_decode($this->wechat->curl->response, true);
 
+
+        $this->form_id--;
+        $this->form_id->save();
 
 
 

@@ -126,6 +126,9 @@ class OrderWarn extends Model
         //发送模板消息
         $wechat_tpl_meg_sender = new WechatTplMsgSender($order->store_id, $order->id, $this->wechat);
         $wechat_tpl_meg_sender->payMsg();
+        $p=Photographer::findOne($order->photographer_id);
+        $tpl_msg=new UserTplMsgSender($this->store_id,$p->user_id,$order->id,$this->getWechat());
+        $tpl_msg->payNewOrderMsg();
         return true;
     }
 

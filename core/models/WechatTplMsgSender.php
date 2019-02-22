@@ -67,7 +67,7 @@ class WechatTplMsgSender
                 'touser' => $this->user->wechat_open_id,
                 'template_id' => $this->wechat_template_message->pay_tpl,
                 'form_id' => $this->form_id->form_id,
-                'page' => 'pages/requirement/order/order?status=1',
+                'page' => 'pages/index/index',
                 'data' => [
                     'keyword1' => [
                         'value' => $this->order->order_no,
@@ -101,22 +101,14 @@ class WechatTplMsgSender
         try {
             if (!$this->wechat_template_message->revoke_tpl)
                 return;
-            $goods_list = OrderDetail::find()
-                ->select('g.name,od.num')
-                ->alias('od')->leftJoin(['g' => Goods::tableName()], 'od.goods_id=g.id')
-                ->where(['od.order_id' => $this->order->id, 'od.is_delete' => 0])->asArray()->all();
-            $goods_names = '';
-            foreach ($goods_list as $goods) {
-                $goods_names .= $goods['name'];
-            }
             $data = [
                 'touser' => $this->user->wechat_open_id,
                 'template_id' => $this->wechat_template_message->revoke_tpl,
                 'form_id' => $this->form_id->form_id,
-                //'page' => 'pages/order/order?status=' . ($this->order->is_pay == 1 ? 1 : 0),
+                'page' => 'pages/index/index',
                 'data' => [
                     'keyword1' => [
-                        'value' => $goods_names,
+                        'value' => '摄影订单取消退款',
                         'color' => '#333333',
                     ],
                     'keyword2' => [
@@ -124,13 +116,10 @@ class WechatTplMsgSender
                         'color' => '#333333',
                     ],
                     'keyword3' => [
-                        'value' => $this->order->total_price,
+                        'value' => $this->order->pay_price,
                         'color' => '#333333',
                     ],
-                    'keyword4' => [
-                        'value' => $remark,
-                        'color' => '#333333',
-                    ],
+
                 ],
             ];
             $this->sendTplMsg($data);
@@ -159,7 +148,7 @@ class WechatTplMsgSender
                 'touser' => $this->user->wechat_open_id,
                 'template_id' => $this->wechat_template_message->send_tpl,
                 'form_id' => $this->form_id->form_id,
-                'page' => 'pages/order/order?status=2',
+                'page' => 'pages/index/index',
                 'data' => [
                     'keyword1' => [
                         'value' => $goods_names,
@@ -186,10 +175,6 @@ class WechatTplMsgSender
     }
 
 
-
-
-
-
     /**
      * 发送发货模板消息
      */
@@ -198,8 +183,8 @@ class WechatTplMsgSender
         try {
             if (!$this->wechat_template_message->receive_tpl)
                 return;
-            $photographer=Photographer::findOne($this->order->photographer_id);
-            if(!$photographer){
+            $photographer = Photographer::findOne($this->order->photographer_id);
+            if (!$photographer) {
                 return;
             }
 
@@ -207,7 +192,7 @@ class WechatTplMsgSender
                 'touser' => $this->user->wechat_open_id,
                 'template_id' => $this->wechat_template_message->receive_tpl,
                 'form_id' => $this->form_id->form_id,
-                'page' => 'pages/requirement/order/order?status=2',
+                'page' => 'pages/index/index',
                 'data' => [
                     'keyword1' => [
                         'value' => $this->order->order_no,
@@ -222,7 +207,7 @@ class WechatTplMsgSender
                         'color' => '#333333',
                     ],
                     'keyword4' => [
-                        'value' => date('Y-m-d H:i:s',$this->order->access_time),
+                        'value' => date('Y-m-d H:i:s', $this->order->access_time),
                         'color' => '#333333',
                     ],
                     'keyword5' => [
@@ -240,8 +225,6 @@ class WechatTplMsgSender
             \Yii::warning($e->getMessage());
         }
     }
-
-
 
 
     /**
@@ -252,16 +235,16 @@ class WechatTplMsgSender
         try {
             if (!$this->wechat_template_message->receive_tpl)
                 return;
-             $photographer=Photographer::findOne($this->order->photographer_id);
-             if(!$photographer){
-                 return;
-             }
+            $photographer = Photographer::findOne($this->order->photographer_id);
+            if (!$photographer) {
+                return;
+            }
 
             $data = [
                 'touser' => $this->user->wechat_open_id,
                 'template_id' => $this->wechat_template_message->receive_tpl,
                 'form_id' => $this->form_id->form_id,
-                'page' => 'pages/requirement/order/order?status=2',
+                'page' => 'pages/index/index',
                 'data' => [
                     'keyword1' => [
                         'value' => $this->order->order_no,
@@ -276,7 +259,7 @@ class WechatTplMsgSender
                         'color' => '#333333',
                     ],
                     'keyword4' => [
-                        'value' => date('Y-m-d H:i:s',$this->order->access_time),
+                        'value' => date('Y-m-d H:i:s', $this->order->access_time),
                         'color' => '#333333',
                     ],
                     'keyword5' => [
@@ -294,7 +277,6 @@ class WechatTplMsgSender
             \Yii::warning($e->getMessage());
         }
     }
-
 
 
     /**
@@ -312,7 +294,7 @@ class WechatTplMsgSender
                 'touser' => $this->user->wechat_open_id,
                 'template_id' => $this->wechat_template_message->refund_tpl,
                 'form_id' => $this->form_id->form_id,
-                'page' => 'pages/order/order?status=4',
+                'page' => 'pages/index/index',
                 'data' => [
                     'keyword1' => [
                         'value' => $refund_price,
@@ -346,7 +328,7 @@ class WechatTplMsgSender
         $data = json_encode($data, JSON_UNESCAPED_UNICODE);
         $this->wechat->curl->post($api, $data);
         $res = json_decode($this->wechat->curl->response, true);
-        $this->form_id->send_count+=1;
+        $this->form_id->send_count += 1;
         $this->form_id->save();
 
         if (!empty($res['errcode']) && $res['errcode'] != 0) {

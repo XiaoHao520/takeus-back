@@ -13,6 +13,7 @@ use Yii;
  * @property string $pic_url
  * @property integer $addtime
  * @property integer $is_delete
+ * @property integer $weight
  */
 class  PhotographerLevel extends \yii\db\ActiveRecord
 {
@@ -31,7 +32,7 @@ class  PhotographerLevel extends \yii\db\ActiveRecord
     {
         return [
             [['store_id', 'name',], 'required'],
-            [['store_id' , 'addtime', 'is_delete',], 'integer'],
+            [['store_id' , 'addtime', 'is_delete','weight'], 'integer'],
             [['pic_url'], 'string'],
             [['name'], 'string', 'max' => 255],
         ];
@@ -52,6 +53,7 @@ class  PhotographerLevel extends \yii\db\ActiveRecord
             'addtime' => 'Addtime',
             'is_delete' => 'Is Delete',
 
+            'weight'=>'权重'
         ];
     }
 

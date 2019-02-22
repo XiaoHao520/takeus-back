@@ -26,6 +26,20 @@ $this->params['active_nav_group'] = 1;
                 </div>
             </div>
 
+
+            <div class="form-group row">
+                <div class="form-group-label col-sm-2 text-right">
+                    <label class="col-form-label required">等级权重</label>
+                </div>
+                <div class="col-sm-6">
+                    <input class="form-control" type="number" step="1" name="model[weight]" value="<?= $list['weight'] ?>">
+                    <span>权重越大，等级越高</span>
+                </div>
+
+
+            </div>
+
+
             <div class="form-group row">
                 <div class="form-group-label col-sm-2 text-right">
                     <label class="col-form-label">等级图标</label>

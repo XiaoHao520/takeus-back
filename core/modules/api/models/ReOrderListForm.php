@@ -58,11 +58,6 @@ class ReOrderListForm extends Model
 
 
 
-
-        $tpl_msg=new UserTplMsgSender($this->store_id,$this->user_id,61,$this->getWechat());
-        $tpl_msg->payNewOrderMsg();
-
-
         if ($this->photographer_id) {
             $query->andWhere(['ro.photographer_id' => $this->photographer_id]);
 
@@ -109,7 +104,7 @@ class ReOrderListForm extends Model
         /* if ($this->status == 4) {//售后订单
              return $this->getRefundList();
          }*/
-        $query->select('ro.*,r.name as r_name,pl.name as l_name,p.name as p_name,p.header_url as pic_url,t.name as t_name,t.minutes,t.number');
+        $query->select('ro.*,r.name as r_name,pl.name as l_name,p.name as p_name,p.header_url as pic_url,t.name as t_name,t.minutes,t.number,p.mobile as p_mobile');
         $count = $query->count();
         $pagination = new Pagination(['totalCount' => $count, 'page' => $this->page - 1, 'pageSize' => $this->limit]);
         /* @var Order[] $list */
@@ -128,16 +123,19 @@ class ReOrderListForm extends Model
                 $order['reward_id'] = $reward['id'];
             } else {
                 $order['add_price'] = 0;
+                $order['add_status'] = 1;
             }
-            $order['pay_price'] = $order['pay_price'] + $order['add_price'] + $sum_price;
+
+
+            $order['price'] = $order['price'] + $order['add_price'] + $sum_price;
+
+
             $order_pic=OrderPic::findOne(['order_id'=>$order['id']]);
             if($order_pic){
                 $order['is_upload']=1;
             }else{
                 $order['is_upload']=0;
             }
-
-
             $list[$i] = $order;
         }
 
